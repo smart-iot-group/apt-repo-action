@@ -169,7 +169,7 @@ if __name__ == '__main__':
 
     logging.info('Adding {}'.format(deb_file_path))
     os.system(
-        'reprepro -S utils -b {} --export=silent-never includedeb {} {}'.format(
+        'reprepro -S utils -P important -b {} --export=silent-never includedeb {} {}'.format(
             apt_dir,
             deb_file_version,
             deb_file_path,
