@@ -162,9 +162,14 @@ if __name__ == '__main__':
 
     logging.info('-- Adding package to repo --')
 
+    logging.info(apt_dir)
+    logging.info(deb_file_path)
+    logging.info(deb_file_version)
+
+
     logging.info('Adding {}'.format(deb_file_path))
     os.system(
-        'reprepro -b {} --export=silent-never includedeb {} {}'.format(
+        'reprepro -S utils -b {} --export=silent-never includedeb {} {}'.format(
             apt_dir,
             deb_file_version,
             deb_file_path,
