@@ -1,9 +1,6 @@
-name: "Github pages APT repo"
-description: "Setup and manage APT repo on Github pages"
+name: "APT Repo Management"
+description: "Setup and manage APT repo, transferring it over SSH"
 inputs:
-  github_token:
-    description: "Github token with commit and push scope"
-    required: true
   repo_supported_arch:
     description: "Newline-delimited list of supported architecture"
     required: true
@@ -25,14 +22,25 @@ inputs:
   key_passphrase:
     description: "Passphrase of GPG private key"
     required: false
-  page_branch:
-    description: "Branch of Github pages"
-    required: false
-    default: "gh-pages"
   repo_folder:
     description: "Location of APT repo folder relative to root of Github pages"
     required: false
     default: "repo"
+  ssh_hostname:
+    description: "Hostname for the SSH server"
+    required: true
+  ssh_username:
+    description: "SSH username for authentication"
+    required: true
+  ssh_password:
+    description: "SSH password for authentication (use either password or SSH key)"
+    required: false
+  ssh_key:
+    description: "SSH key for authentication (use either password or SSH key)"
+    required: false
+  remote_dir:
+    description: "Remote directory path to transfer the files"
+    required: true
   debug:
     description: "Print debug log"
     required: false
@@ -40,5 +48,5 @@ runs:
   using: "docker"
   image: "Dockerfile"
 branding:
-  icon: "upload-cloud"
-  color: "red"
+  icon: "package"
+  color: "green"
