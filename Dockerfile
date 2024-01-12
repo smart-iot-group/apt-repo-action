@@ -1,6 +1,6 @@
 FROM ubuntu:bionic
 
-LABEL maintainer="jrandiny <jrandiny@gmail.com>"
+LABEL maintainer="tristan jakobi <t.jakobi@smart-iot.solutions>"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
