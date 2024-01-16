@@ -3,6 +3,7 @@ import sys
 import logging
 import gnupg
 from ftplib import FTP
+from key import detectPublicKey, importPrivateKey
 
 def transfer_files_over_ftp(local_dir, remote_dir, hostname, username, password, port=21):
     with FTP() as ftp:
