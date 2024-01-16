@@ -2,27 +2,18 @@ import os
 import sys
 import logging
 import gnupg
-from debian.debfile import DebFile
-from key import detectPublicKey, importPrivateKey
-import paramiko
+from ftplib import FTP
 
-def transfer_files_over_ssh(local_dir, remote_dir, hostname, username, password=None, ssh_key=None):
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-    if ssh_key:
-        ssh.connect(hostname, username=username, key_filename=ssh_key)
-    else:
-        ssh.connect(hostname, username=username, password=password)
-
-    sftp = ssh.open_sftp()
-    for file in os.listdir(local_dir):
-        local_path = os.path.join(local_dir, file)
-        remote_path = os.path.join(remote_dir, file)
-        sftp.put(local_path, remote_path)
-    
-    sftp.close()
-    ssh.close()
+def transfer_files_over_ftp(local_dir, remote_dir, hostname, username, password, port=21):
+    with FTP() as ftp:
+        ftp.connect(host=hostname, port=port)
+        ftp.login(user=username, passwd=password)
+        ftp.cwd(remote_dir)
+        
+        for file in os.listdir(local_dir):
+            local_path = os.path.join(local_dir, file)
+            with open(local_path, 'rb') as fp:
+                ftp.storbinary(f'STOR {file}', fp)
 
 debug = os.environ.get('INPUT_DEBUG', False)
 
@@ -121,15 +112,15 @@ if __name__ == '__main__':
 
     logging.info('-- Done adding package to repo --')
 
-    # SSH Transfer
-
-    logging.info('-- Transferring files over SSH --')
-
-    ssh_hostname = 'your_ssh_server'
-    ssh_username = 'your_username'
-    ssh_password = 'your_password'  # or use ssh_key='path_to_your_ssh_key'
-    remote_dir = 'path_to_remote_dir'
-
-    transfer_files_over_ssh(apt_dir, remote_dir, ssh_hostname, ssh_username, ssh_password)
-
+    # FTP Transfer
+    
+    logging.info('-- Transferring files over FTP --')
+    
+    ftp_hostname = 'api.automated-apt-repo.smart-iot.dev'
+    ftp_username = 'user'
+    ftp_password = 'password'
+    remote_dir = '/path/to/remote/dir'  # Update with the correct remote directory
+    
+    transfer_files_over_ftp(apt_dir, remote_dir, ftp_hostname, ftp_username, ftp_password)
+    
     logging.info('-- Done transferring files --')
