@@ -9,8 +9,6 @@ RUN apt update && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install ftplib
-
 COPY entrypoint.py /entrypoint.py
 COPY key.py /key.py
 
