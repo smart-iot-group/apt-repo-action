@@ -63,7 +63,7 @@ if __name__ == '__main__':
     logging.info('-- Importing key --')
 
     gpg = gnupg.GPG()
-    detectPublicKey(gpg, key_public)
+    detectPublicKey(gpg, key_public, key_public)
     private_key_id = importPrivateKey(gpg, key_private)
 
     logging.info('-- Done importing key --')
