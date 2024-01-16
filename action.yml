@@ -1,5 +1,5 @@
 name: "APT Repo Management"
-description: "Setup and manage APT repo, transferring it over SSH"
+description: "Setup and manage APT repo, transferring it over FTP"
 inputs:
   repo_supported_arch:
     description: "Newline-delimited list of supported architecture"
@@ -26,18 +26,15 @@ inputs:
     description: "Location of APT repo folder relative to root of Github pages"
     required: false
     default: "repo"
-  ssh_hostname:
-    description: "Hostname for the SSH server"
+  ftp_hostname:
+    description: "Hostname for the FTP server"
     required: true
-  ssh_username:
-    description: "SSH username for authentication"
+  ftp_username:
+    description: "FTP username for authentication"
     required: true
-  ssh_password:
-    description: "SSH password for authentication (use either password or SSH key)"
-    required: false
-  ssh_key:
-    description: "SSH key for authentication (use either password or SSH key)"
-    required: false
+  ftp_password:
+    description: "FTP password for authentication"
+    required: true
   remote_dir:
     description: "Remote directory path to transfer the files"
     required: true
