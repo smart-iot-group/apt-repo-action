@@ -5,39 +5,30 @@ import gnupg
 import subprocess
 from key import detectPublicKey, importPrivateKey
 import tempfile
+import paramiko
+from paramiko import SSHClient
+from scp import SCPClient
+
 
 def transfer_file_over_scp(local_file_path, remote_file_path, hostname, port, private_key_str, scp_username=None):
     if not private_key_str:
         logging.error('Private key string is empty or not provided')
         sys.exit(1)
 
-    scp_dest = f'{hostname}:{remote_file_path}'
-    if scp_username:
-        scp_dest = f'{scp_username}@{scp_dest}'
+    # Convert private key string to Paramiko key
+    private_key_file = paramiko.RSAKey.from_private_key(private_key_str)
 
-    with tempfile.NamedTemporaryFile(prefix="scp_key_", delete=False) as tmp_key_file:
-        tmp_key_file.write(private_key_str.encode())
-        tmp_key_path = tmp_key_file.name
+    # Create SSH client
+    client = SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(hostname, port=port, username=scp_username, pkey=private_key_file)
 
-    scp_command = [
-        'scp',
-        '-o', 'StrictHostKeyChecking=no',
-        '-o', 'UserKnownHostsFile=/dev/null',
-        '-P', str(port),
-        '-i', tmp_key_path,
-        local_file_path,
-        scp_dest
-    ]
+    # Use SCPClient to transfer file
+    with SCPClient(client.get_transport()) as scp:
+        scp.put(local_file_path, remote_file_path)
 
-    logging.info('Transferring file over SCP')
-    try:
-        subprocess.run(scp_command, check=True, universal_newlines=True)
-        logging.info('File transferred successfully')
-    except subprocess.CalledProcessError as e:
-        logging.error(f'SCP transfer failed: {e}')
-    finally:
-        os.remove(tmp_key_path)
-        logging.info('Temporary private key file removed')
+    client.close()
+
 
 debug = os.environ.get('INPUT_DEBUG', False)
 
