@@ -6,15 +6,25 @@ from ftplib import FTP
 from key import detectPublicKey, importPrivateKey
 
 def transfer_files_over_ftp(local_dir, remote_dir, hostname, username, password, port=21):
-    with FTP() as ftp:
-        ftp.connect(host=hostname, port=port)
-        ftp.login(user=username, passwd=password)
-        ftp.cwd(remote_dir)
-        
-        for file in os.listdir(local_dir):
-            local_path = os.path.join(local_dir, file)
-            with open(local_path, 'rb') as fp:
-                ftp.storbinary(f'STOR {file}', fp)
+    try:
+        with FTP() as ftp:
+            ftp.connect(host=hostname, port=port)
+            ftp.login(user=username, passwd=password)
+            logging.info('Connected to FTP server')
+
+            ftp.cwd(remote_dir)
+            logging.info('Changed directory to {}'.format(remote_dir))
+            
+            for file in os.listdir(local_dir):
+                local_path = os.path.join(local_dir, file)
+                with open(local_path, 'rb') as fp:
+                    ftp.storbinary(f'STOR {file}', fp)
+                    logging.info('Transferred file: {}'.format(file))
+
+    except Exception as e:
+        logging.error('FTP error: {}'.format(e))
+        sys.exit(1)
+
 
 debug = os.environ.get('INPUT_DEBUG', False)
 
