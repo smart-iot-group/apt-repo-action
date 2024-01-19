@@ -5,7 +5,7 @@ LABEL maintainer="tristan jakobi <t.jakobi@smart-iot.solutions>"
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt update && \
-    apt install -y reprepro gpg python3 python3-gnupg python3-debian python3-pip && \
+    apt install -y reprepro gpg python3 python3-git python3-gnupg expect python3-debian python3-pip && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
