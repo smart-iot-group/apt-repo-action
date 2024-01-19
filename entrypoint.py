@@ -4,6 +4,7 @@ import logging
 import gnupg
 import subprocess
 from key import detectPublicKey, importPrivateKey
+import tempfile
 
 def transfer_file_over_scp(local_file_path, remote_file_path, hostname, port, private_key_str, scp_username=None):
     scp_dest = f'{hostname}:{remote_file_path}'
