@@ -65,14 +65,20 @@ if __name__ == '__main__':
     # Sign the deb file
 
     logging.info('-- Signing .deb file --')
-    sign_command = f'echo "{key_passphrase}" | gpg --batch --yes --passphrase-fd 0 --default-key {private_key_id} --detach-sign {deb_file_path}'
+    gpg_command = [
+        'gpg', '--batch', '--yes', '--pinentry-mode', 'loopback',
+        '--passphrase-fd', '0', '--default-key', private_key_id,
+        '--detach-sign', deb_file_path
+    ]
     
     try:
-        subprocess.run(sign_command, shell=True, check=True)
+        with subprocess.Popen(gpg_command, stdin=subprocess.PIPE, text=True) as proc:
+            proc.communicate(input=key_passphrase)
         logging.info('.deb file signed successfully')
     except subprocess.CalledProcessError as e:
         logging.error(f'Error signing .deb file: {e}')
         sys.exit(1)
+
 
     # SCP Transfer
     
