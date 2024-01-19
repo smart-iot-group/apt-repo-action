@@ -3,34 +3,30 @@ import os
 import sys
 
 
-def detectPublicKey(gpg, key_dir, pub_key):
+def detectPublicKey(gpg, key_dir):
     logging.info('Detecting public key')
 
-    logging.debug('Detecting existing public key')
+    public_key_path = os.path.join(key_dir, 'public.key')
+    logging.debug('Looking for public key at {}'.format(public_key_path))
 
-    key_exists = os.path.isfile(key_dir)
+    key_exists = os.path.isfile(public_key_path)
 
     logging.debug('Existing public key file exists? {}'.format(key_exists))
 
     if not key_exists:
-        logging.info('Directory doesn\'t contain public.key trying to import')
-        if pub_key is None:
-            logging.error('Please specify public key for setup')
-            sys.exit(1)
+        logging.error('Public key file not found at {}'.format(public_key_path))
+        sys.exit(1)
 
-        logging.debug('Trying to import key')
+    with open(public_key_path, 'r') as key_file:
+        pub_key = key_file.read()
 
-        public_import_result = gpg.import_keys(pub_key)
-        public_import_result.ok_reason
+    logging.debug('Trying to import key')
+    public_import_result = gpg.import_keys(pub_key)
+    logging.debug(public_import_result)
 
-        logging.debug(public_import_result)
-
-        if public_import_result.count != 1:
-            logging.error('Invalid public key provided, please provide 1 valid key')
-            sys.exit(1)
-
-        with open(key_dir, 'w') as key_file:
-            key_file.write(pub_key)
+    if public_import_result.count != 1:
+        logging.error('Invalid public key provided, please provide 1 valid key')
+        sys.exit(1)
 
     logging.info('Public key valid')
 
