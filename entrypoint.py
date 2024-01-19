@@ -3,22 +3,21 @@ import sys
 import logging
 import gnupg
 import subprocess
+import paramiko
 from key import detectPublicKey, importPrivateKey
 
-def transfer_file_over_scp(local_file_path, remote_file_path, hostname, username, password):
-    scp_command = [
-        'scp',
-        '-o', 'StrictHostKeyChecking=no',
-        '-o', 'UserKnownHostsFile=/dev/null',
-        local_file_path,
-        f'{username}@{hostname}:{remote_file_path}'
-    ]
-
-    logging.info('Transferring file over SCP')
+def transfer_file_over_scp(local_file_path, remote_file_path, hostname, port, private_key):
     try:
-        subprocess.run(scp_command, check=True, text=True, input=password)
-        logging.info('File transferred successfully')
-    except subprocess.CalledProcessError as e:
+        key = paramiko.RSAKey.from_private_key_file(private_key)
+        transport = paramiko.Transport((hostname, port))
+        transport.connect(username='git', pkey=key)
+
+        with paramiko.SFTPClient.from_transport(transport) as sftp:
+            sftp.put(local_file_path, remote_file_path)
+            logging.info('File transferred successfully')
+
+        transport.close()
+    except Exception as e:
         logging.error(f'SCP transfer failed: {e}')
         sys.exit(1)
 
@@ -70,12 +69,12 @@ if __name__ == '__main__':
     # SCP Transfer
     
     logging.info('-- Transferring files over SCP --')
-    
+
     scp_hostname = os.environ.get('SCP_HOSTNAME')
-    scp_username = os.environ.get('SCP_USERNAME')
-    scp_password = os.environ.get('SCP_PASSWORD')
+    scp_port = int(os.environ.get('SCP_PORT', 2222))
+    apt_repo_private_key = os.environ.get('APT_REPO_PRIVATE')
     remote_file_path = os.environ.get('REMOTE_FILE_PATH')
 
-    transfer_file_over_scp(deb_file_path, remote_file_path, scp_hostname, scp_username, scp_password)
-    
+    transfer_file_over_scp(deb_file_path, remote_file_path, scp_hostname, scp_port, apt_repo_private_key)
+
     logging.info('-- Done transferring files --')
