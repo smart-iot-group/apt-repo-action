@@ -79,7 +79,6 @@ if __name__ == '__main__':
         logging.error(f'Error signing .deb file: {e}')
         sys.exit(1)
 
-
     # SCP Transfer
     
     logging.info('-- Transferring files over SCP --')
