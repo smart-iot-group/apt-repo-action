@@ -10,9 +10,6 @@ inputs:
   file:
     description: "Newline-delimited list of .deb files"
     required: true
-  file_target_version:
-    description: "Newline-delimited list of version target of supplied .deb file"
-    required: true
   public_key:
     description: "GPG public key for apt repo"
     required: false
@@ -22,10 +19,6 @@ inputs:
   key_passphrase:
     description: "Passphrase of GPG private key"
     required: false
-  repo_folder:
-    description: "Location of APT repo folder relative to root of Github pages"
-    required: false
-    default: "repo"
   scp_hostname:
     description: "Hostname for the SCP server"
     required: true
@@ -33,9 +26,6 @@ inputs:
     description: "Port for the SCP server"
     required: false
     default: "22"
-  scp_username:
-    description: "SCP username for authentication"
-    required: true
   apt_repo_private:
     description: "Path to the private key for SCP authentication"
     required: true
