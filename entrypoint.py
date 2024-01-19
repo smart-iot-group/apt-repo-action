@@ -71,12 +71,13 @@ if __name__ == '__main__':
     ]
     
     try:
-        with subprocess.Popen(gpg_command, stdin=subprocess.PIPE, text=True) as proc:
+        with subprocess.Popen(gpg_command, stdin=subprocess.PIPE, universal_newlines=True) as proc:
             proc.communicate(input=key_passphrase)
         logging.info('.deb file signed successfully')
     except subprocess.CalledProcessError as e:
         logging.error(f'Error signing .deb file: {e}')
         sys.exit(1)
+
 
     # SCP Transfer
     logging.info('-- Transferring files over SCP --')
