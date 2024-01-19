@@ -9,6 +9,9 @@ RUN apt update && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Install Paramiko and SCP for Python
+RUN pip3 install paramiko scp
+
 COPY entrypoint.py /entrypoint.py
 COPY key.py /key.py
 
