@@ -63,7 +63,6 @@ if __name__ == '__main__':
     logging.info('-- Done importing key --')
 
     # Sign the deb file
-
     logging.info('-- Signing .deb file --')
     gpg_command = [
         'gpg', '--batch', '--yes', '--pinentry-mode', 'loopback',
@@ -80,7 +79,6 @@ if __name__ == '__main__':
         sys.exit(1)
 
     # SCP Transfer
-    
     logging.info('-- Transferring files over SCP --')
 
     scp_hostname = os.environ.get('SCP_HOSTNAME')
