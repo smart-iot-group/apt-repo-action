@@ -2,29 +2,25 @@ import os
 import sys
 import logging
 import gnupg
-from ftplib import FTP
+import subprocess
 from key import detectPublicKey, importPrivateKey
 
-def transfer_files_over_ftp(local_dir, remote_dir, hostname, username, password, port=21):
+def transfer_file_over_scp(local_file_path, remote_file_path, hostname, username, password):
+    scp_command = [
+        'scp',
+        '-o', 'StrictHostKeyChecking=no',
+        '-o', 'UserKnownHostsFile=/dev/null',
+        local_file_path,
+        f'{username}@{hostname}:{remote_file_path}'
+    ]
+
+    logging.info('Transferring file over SCP')
     try:
-        with FTP() as ftp:
-            ftp.connect(host=hostname, port=port)
-            ftp.login(user=username, passwd=password)
-            logging.info('Connected to FTP server')
-
-            ftp.cwd(remote_dir)
-            logging.info('Changed directory to {}'.format(remote_dir))
-            
-            for file in os.listdir(local_dir):
-                local_path = os.path.join(local_dir, file)
-                with open(local_path, 'rb') as fp:
-                    ftp.storbinary(f'STOR {file}', fp)
-                    logging.info('Transferred file: {}'.format(file))
-
-    except Exception as e:
-        logging.error('FTP error: {}'.format(e))
+        subprocess.run(scp_command, check=True, text=True, input=password)
+        logging.info('File transferred successfully')
+    except subprocess.CalledProcessError as e:
+        logging.error(f'SCP transfer failed: {e}')
         sys.exit(1)
-
 
 debug = os.environ.get('INPUT_DEBUG', False)
 
@@ -36,106 +32,50 @@ else:
 if __name__ == '__main__':
     logging.info('-- Parsing input --')
 
-    supported_arch = os.environ.get('INPUT_REPO_SUPPORTED_ARCH')
-    supported_version = os.environ.get('INPUT_REPO_SUPPORTED_VERSION')
     deb_file_path = os.environ.get('INPUT_FILE')
-    deb_file_target_version = os.environ.get('INPUT_FILE_TARGET_VERSION')
-    github_repo = os.environ.get('GITHUB_REPOSITORY')
-
-    apt_folder = os.environ.get('INPUT_REPO_FOLDER', 'repo')
-
-    if None in (supported_arch, supported_version, deb_file_path):
-        logging.error('Required key is missing')
-        sys.exit(1)
-
-    supported_arch_list = supported_arch.strip().split('\n')
-    supported_version_list = supported_version.strip().split('\n')
-    deb_file_path = deb_file_path.strip()
-    deb_file_version = deb_file_target_version.strip()
-
-    logging.debug(supported_arch_list)
-    logging.debug(supported_version_list)
-    logging.debug(deb_file_path)
-    logging.debug(deb_file_version)
-
-    if deb_file_version not in supported_version_list:
-        logging.error('File version target is not listed in repo supported version list')
-        sys.exit(1)
-
     key_public = os.environ.get('INPUT_PUBLIC_KEY')
     key_private = os.environ.get('INPUT_PRIVATE_KEY')
     key_passphrase = os.environ.get('INPUT_KEY_PASSPHRASE')
 
-    logging.info('-- Done parsing input --')
+    if None in (deb_file_path, key_public, key_private):
+        logging.error('Required key is missing')
+        sys.exit(1)
 
-    # Prepare key
+    deb_file_path = deb_file_path.strip()
+
+    logging.debug(deb_file_path)
 
     logging.info('-- Importing key --')
     
     repo_root = os.getcwd()
     gpg = gnupg.GPG()
     detectPublicKey(gpg, repo_root)
-
-
     
     private_key_id = importPrivateKey(gpg, key_private)
 
     logging.info('-- Done importing key --')
 
-    # Prepare repo
+    # Sign the deb file
 
-    logging.info('-- Preparing repo directory --')
-
-    apt_dir = os.path.join(os.getcwd(), apt_folder)
-    apt_conf_dir = os.path.join(apt_dir, 'conf')
-
-    if not os.path.isdir(apt_dir):
-        logging.info('Existing repo not detected, creating new repo')
-        os.makedirs(apt_conf_dir)
-
-    logging.debug('Creating repo config')
-
-    with open(os.path.join(apt_conf_dir, 'distributions'), 'w') as distributions_file:
-        for codename in supported_version_list:
-            distributions_file.write('Description: {}\n'.format(github_repo))
-            distributions_file.write('Codename: {}\n'.format(codename))
-            distributions_file.write('Architectures: {}\n'.format(' '.join(supported_arch_list)))
-            distributions_file.write('Components: main\n')
-            distributions_file.write('SignWith: {}\n'.format(private_key_id))
-            distributions_file.write('\n\n')
-
-    logging.info('-- Done preparing repo directory --')
-
-    # Fill repo
-
-    logging.info('-- Adding package to repo --')
-
-    logging.info('Adding {}'.format(deb_file_path))
-    os.system(
-        'reprepro -S utils -P important -b {} --export=silent-never includedeb {} {}'.format(
-            apt_dir,
-            deb_file_version,
-            deb_file_path,
-        )
-    )
-
-    logging.debug('Signing to unlock key on gpg agent')
-    gpg.sign('test', keyid=private_key_id, passphrase=key_passphrase)
-
-    logging.debug('Export and sign repo')
-    os.system('reprepro -b {} export'.format(apt_dir))
-
-    logging.info('-- Done adding package to repo --')
-
-    # FTP Transfer
+    logging.info('-- Signing .deb file --')
+    sign_command = f'echo "{key_passphrase}" | gpg --batch --yes --passphrase-fd 0 --default-key {private_key_id} --detach-sign {deb_file_path}'
     
-    logging.info('-- Transferring files over FTP --')
+    try:
+        subprocess.run(sign_command, shell=True, check=True)
+        logging.info('.deb file signed successfully')
+    except subprocess.CalledProcessError as e:
+        logging.error(f'Error signing .deb file: {e}')
+        sys.exit(1)
+
+    # SCP Transfer
     
-    ftp_hostname = os.environ.get('FTP_hostname')
-    ftp_username = os.environ.get('FTP_USERNAME')
-    ftp_password = os.environ.get('FTP_PASSWORD')
-    remote_dir = os.environ.get('REMOTE_DIR')
+    logging.info('-- Transferring files over SCP --')
     
-    transfer_files_over_ftp(apt_dir, remote_dir, ftp_hostname, ftp_username, ftp_password)
+    scp_hostname = os.environ.get('SCP_HOSTNAME')
+    scp_username = os.environ.get('SCP_USERNAME')
+    scp_password = os.environ.get('SCP_PASSWORD')
+    remote_file_path = os.environ.get('REMOTE_FILE_PATH')
+
+    transfer_file_over_scp(deb_file_path, remote_file_path, scp_hostname, scp_username, scp_password)
     
     logging.info('-- Done transferring files --')
