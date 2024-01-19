@@ -9,7 +9,9 @@ RUN apt update && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install paramiko
+RUN apt-get install -y python-paramiko libffi-dev
+
+
 
 COPY entrypoint.py /entrypoint.py
 COPY key.py /key.py
