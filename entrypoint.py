@@ -8,26 +8,35 @@ import tempfile
 import paramiko
 from paramiko import SSHClient
 from scp import SCPClient
-
+import io
 
 def transfer_file_over_scp(local_file_path, remote_file_path, hostname, port, private_key_str, scp_username=None):
     if not private_key_str:
         logging.error('Private key string is empty or not provided')
         sys.exit(1)
 
-    # Convert private key string to Paramiko key
-    private_key_file = paramiko.RSAKey.from_private_key(private_key_str)
+    try:
+        # Create an in-memory file-like object from the private key string
+        private_key_file = io.StringIO(private_key_str)
+        pkey = paramiko.RSAKey.from_private_key(private_key_file)
 
-    # Create SSH client
-    client = SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(hostname, port=port, username=scp_username, pkey=private_key_file)
+        # Create SSH client
+        client = SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.connect(hostname, port=port, username=scp_username, pkey=pkey)
 
-    # Use SCPClient to transfer file
-    with SCPClient(client.get_transport()) as scp:
-        scp.put(local_file_path, remote_file_path)
+        # Use SCPClient to transfer file
+        with SCPClient(client.get_transport()) as scp:
+            scp.put(local_file_path, remote_file_path)
 
-    client.close()
+        client.close()
+    except Exception as e:
+        logging.error(f'Error during SCP transfer: {e}')
+        sys.exit(1)
+    finally:
+        if 'private_key_file' in locals():
+            private_key_file.close()
+
 
 
 debug = os.environ.get('INPUT_DEBUG', False)
