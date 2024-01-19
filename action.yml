@@ -1,5 +1,5 @@
 name: "APT Repo Management"
-description: "Setup and manage APT repo, transferring it over FTP"
+description: "Setup and manage APT repo, transferring it over SCP"
 inputs:
   repo_supported_arch:
     description: "Newline-delimited list of supported architecture"
@@ -26,17 +26,21 @@ inputs:
     description: "Location of APT repo folder relative to root of Github pages"
     required: false
     default: "repo"
-  ftp_hostname:
-    description: "Hostname for the FTP server"
+  scp_hostname:
+    description: "Hostname for the SCP server"
     required: true
-  ftp_username:
-    description: "FTP username for authentication"
+  scp_port:
+    description: "Port for the SCP server"
+    required: false
+    default: "22"
+  scp_username:
+    description: "SCP username for authentication"
     required: true
-  ftp_password:
-    description: "FTP password for authentication"
+  apt_repo_private:
+    description: "Path to the private key for SCP authentication"
     required: true
-  remote_dir:
-    description: "Remote directory path to transfer the files"
+  remote_file_path:
+    description: "Remote file path to transfer the .deb file"
     required: true
   debug:
     description: "Print debug log"
