@@ -92,12 +92,12 @@ if __name__ == '__main__':
     # SCP Transfer
     logging.info('-- Transferring files over SCP --')
 
-    scp_hostname = os.environ.get('SCP_HOSTNAME')
-    scp_port = int(os.environ.get('SCP_PORT', 22))
-    scp_username = os.environ.get('SCP_USERNAME', None)
-    apt_repo_private_key_str = os.environ.get('APT_REPO_PRIVATE')
+    scp_hostname = os.environ.get('INPUT_SCP_HOSTNAME')
+    scp_port = int(os.environ.get('INPUT_SCP_PORT', 22))
+    scp_username = os.environ.get('INPUT_SCP_USERNAME', None)
+    apt_repo_private_key_str = os.environ.get('INPUT_APT_REPO_PRIVATE')
     logging.info(apt_repo_private_key_str)
-    remote_file_path = os.environ.get('REMOTE_FILE_PATH')
+    remote_file_path = os.environ.get('INPUT_REMOTE_FILE_PATH')
 
     transfer_file_over_scp(deb_file_path, remote_file_path, scp_hostname, scp_port, apt_repo_private_key_str, scp_username)
 
