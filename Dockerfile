@@ -6,6 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt update && \
     apt install -y reprepro gpg python3 python3-gnupg python3-debian python3-pip && \
+    pip3 install paramiko && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
