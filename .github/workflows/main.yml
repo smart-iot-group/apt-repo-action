@@ -1,4 +1,4 @@
-name: Create Release
+name: Auto Increment Release
 
 on:
   push:
@@ -11,14 +11,33 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Fetch all history for all tags and branches
+
+      - name: Get latest tag
+        id: latest_tag
+        run: |
+          git fetch --tags
+          latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+          echo "Latest tag is $latest_tag"
+          echo "::set-output name=latest_tag::$latest_tag"
+
+      - name: Calculate new tag
+        id: new_tag
+        run: |
+          latest_tag="${{ steps.latest_tag.outputs.latest_tag }}"
+          IFS='.' read -ra VERSION <<< "$latest_tag"
+          ((VERSION[-1]++))
+          new_tag=$(IFS=.; echo "${VERSION[*]}")
+          echo "New tag is $new_tag"
+          echo "::set-output name=new_tag::$new_tag"
 
       - name: Create Release
-        id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ steps.new_tag.outputs.new_tag }}
+          release_name: Release ${{ steps.new_tag.outputs.new_tag }}
           draft: false
           prerelease: false
