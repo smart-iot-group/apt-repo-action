@@ -22,12 +22,11 @@ def transfer_file_over_scp(local_file_path, remote_file_path, hostname, port, pr
 
     logging.info('Transferring file over SCP')
     try:
-        subprocess.run(scp_command, check=True, text=True)
+        subprocess.run(scp_command, check=True, universal_newlines=True)
         logging.info('File transferred successfully')
     except subprocess.CalledProcessError as e:
         logging.error(f'SCP transfer failed: {e}')
         sys.exit(1)
-
 
 debug = os.environ.get('INPUT_DEBUG', False)
 
