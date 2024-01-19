@@ -3,23 +3,31 @@ import sys
 import logging
 import gnupg
 import subprocess
-import paramiko
 from key import detectPublicKey, importPrivateKey
 
-def transfer_file_over_scp(local_file_path, remote_file_path, hostname, port, private_key):
+def transfer_file_over_scp(local_file_path, remote_file_path, hostname, port, private_key_path, scp_username=None):
+    scp_dest = f'{hostname}:{remote_file_path}'
+    if scp_username:
+        scp_dest = f'{scp_username}@{scp_dest}'
+
+    scp_command = [
+        'scp',
+        '-o', 'StrictHostKeyChecking=no',
+        '-o', 'UserKnownHostsFile=/dev/null',
+        '-P', str(port),
+        '-i', private_key_path,
+        local_file_path,
+        scp_dest
+    ]
+
+    logging.info('Transferring file over SCP')
     try:
-        key = paramiko.RSAKey.from_private_key_file(private_key)
-        transport = paramiko.Transport((hostname, port))
-        transport.connect(username='git', pkey=key)
-
-        with paramiko.SFTPClient.from_transport(transport) as sftp:
-            sftp.put(local_file_path, remote_file_path)
-            logging.info('File transferred successfully')
-
-        transport.close()
-    except Exception as e:
+        subprocess.run(scp_command, check=True, text=True)
+        logging.info('File transferred successfully')
+    except subprocess.CalledProcessError as e:
         logging.error(f'SCP transfer failed: {e}')
         sys.exit(1)
+
 
 debug = os.environ.get('INPUT_DEBUG', False)
 
