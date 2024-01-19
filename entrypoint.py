@@ -61,9 +61,13 @@ if __name__ == '__main__':
     # Prepare key
 
     logging.info('-- Importing key --')
-
+    
+    repo_root = os.getcwd()
     gpg = gnupg.GPG()
-    detectPublicKey(gpg, key_public, key_public)
+    detectPublicKey(gpg, repo_root)
+
+
+    
     private_key_id = importPrivateKey(gpg, key_private)
 
     logging.info('-- Done importing key --')
