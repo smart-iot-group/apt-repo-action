@@ -131,10 +131,10 @@ if __name__ == '__main__':
     
     logging.info('-- Transferring files over FTP --')
     
-    ftp_hostname = 'api.automated-apt-repo.smart-iot.dev'
-    ftp_username = 'user'
-    ftp_password = 'password'
-    remote_dir = '/path/to/remote/dir'  # Update with the correct remote directory
+    ftp_hostname = os.environ.get('FTP_hostname')
+    ftp_username = os.environ.get('FTP_USERNAME')
+    ftp_password = os.environ.get('FTP_PASSWORD')
+    remote_dir = os.environ.get('REMOTE_DIR')
     
     transfer_files_over_ftp(apt_dir, remote_dir, ftp_hostname, ftp_username, ftp_password)
     
