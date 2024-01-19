@@ -10,7 +10,7 @@ RUN apt update && \
     rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m pip install --upgrade pip && \
-    pip3 install paramiko
+    pip3 install paramiko scp
 
 COPY entrypoint.py /entrypoint.py
 COPY key.py /key.py
