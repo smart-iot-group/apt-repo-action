@@ -7,14 +7,25 @@ from key import detectPublicKey, importPrivateKey
 import tempfile
 import paramiko
 from paramiko import SSHClient
+from paramiko import Agent
 from scp import SCPClient
 import io
 
+
 def transfer_file_over_scp(local_file_path, remote_file_path, hostname, port, scp_username=None):
     try:
+        logging.info(f'SSH_AUTH_SOCK: {os.environ.get("SSH_AUTH_SOCK")}')
+        
         # Create SSH client
         client = SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        # Check if keys are available from the ssh-agent
+        agent = Agent()
+        if len(agent.get_keys()) == 0:
+            logging.error('No keys available in ssh-agent')
+            sys.exit(1)
+
         client.connect(hostname, port=port, username=scp_username)
 
         # Use SCPClient to transfer file
