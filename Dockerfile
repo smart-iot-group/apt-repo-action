@@ -12,6 +12,8 @@ RUN apt update && \
 RUN python3 -m pip install --upgrade pip && \
     pip3 install paramiko scp
 
+RUN mkdir -p /ssh-agent && chmod 700 /ssh-agent
+
 COPY entrypoint.py /entrypoint.py
 COPY key.py /key.py
 
