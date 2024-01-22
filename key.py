@@ -23,18 +23,22 @@ def detectPublicKey(key_dir):
 
     if not public_import_result.fingerprints or len(public_import_result.fingerprints) != 1:
         logging.error('Invalid public key provided, please provide 1 valid key')
+        logging.error('GPG error: ' + public_import_result.stderr)
         sys.exit(1)
 
     logging.info('Public key valid')
 
 def importPrivateKey(sign_key):
     logging.info('Importing private key')
+    logging.info(sign_key)
 
     gpg = gnupg.GPG(options=['--yes', '--always-trust'])
     private_import_result = gpg.import_keys(sign_key)
 
     if not private_import_result.fingerprints or len(private_import_result.fingerprints) != 1:
         logging.error('Invalid private key provided, please provide 1 valid key')
+        logging.error('GPG error: ' + public_import_result.stderr)
+
         sys.exit(1)
 
     private_key_id = private_import_result.fingerprints[0]
