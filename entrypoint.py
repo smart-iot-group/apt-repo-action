@@ -10,20 +10,21 @@ from paramiko import Agent
 from scp import SCPClient
 import io
 
+
 def scp_transfer(hostname, port, username, local_file_path, remote_file_path):
     ssh_auth_sock = os.getenv('SSH_AUTH_SOCK', None)
     if ssh_auth_sock is None:
         raise ValueError("SSH_AUTH_SOCK environment variable is not set")
 
-    agent = paramiko.Agent()
-    try:
-        agent._connect(ssh_auth_sock)
-    except Exception as e:
-        raise ValueError(f"Unable to connect to SSH agent: {e}")
+    logging.info(f"SSH_AUTH_SOCK: {ssh_auth_sock}")
 
+
+    if not os.path.exists(ssh_auth_sock):
+        raise ValueError(f"SSH agent socket {ssh_auth_sock} does not exist")
+
+    agent = paramiko.Agent()
     agent_keys = agent.get_keys()
-    logging.info(agent_keys)
-    logging.info(ssh_auth_sock)
+    logging.info(f"Agent keys: {agent_keys}")
 
     if not agent_keys:
         raise ValueError("No keys available in SSH agent")
@@ -38,9 +39,7 @@ def scp_transfer(hostname, port, username, local_file_path, remote_file_path):
     finally:
         client.close()
 
-debug = os.environ.get('INPUT_DEBUG', False)
-
-
+        
 if debug:
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 else:
