@@ -18,7 +18,7 @@ def detectPublicKey(key_dir):
 
     logging.debug('Trying to import key')
     
-    gpg = gnupg.GPG()
+    gpg = gnupg.GPG(options=['--yes', '--always-trust'])
     public_import_result = gpg.import_keys(pub_key)
 
     if not public_import_result.fingerprints or len(public_import_result.fingerprints) != 1:
@@ -30,7 +30,7 @@ def detectPublicKey(key_dir):
 def importPrivateKey(sign_key):
     logging.info('Importing private key')
 
-    gpg = gnupg.GPG()
+    gpg = gnupg.GPG(options=['--yes', '--always-trust'])
     private_import_result = gpg.import_keys(sign_key)
 
     if not private_import_result.fingerprints or len(private_import_result.fingerprints) != 1:
