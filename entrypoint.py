@@ -16,8 +16,12 @@ def scp_transfer(hostname, port, username, local_file_path, remote_file_path):
         raise ValueError("SSH_AUTH_SOCK environment variable is not set")
 
     agent = paramiko.Agent()
-    agent_keys = agent.get_keys()
+    try:
+        agent._connect(ssh_auth_sock)
+    except Exception as e:
+        raise ValueError(f"Unable to connect to SSH agent: {e}")
 
+    agent_keys = agent.get_keys()
     logging.info(agent_keys)
     logging.info(ssh_auth_sock)
 
@@ -33,9 +37,7 @@ def scp_transfer(hostname, port, username, local_file_path, remote_file_path):
             scp.put(local_file_path, remote_file_path)
     finally:
         client.close()
-
-debug = os.environ.get('INPUT_DEBUG', False)
-
+        
 if debug:
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 else:
