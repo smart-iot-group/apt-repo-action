@@ -32,9 +32,6 @@ def importPrivateKey(sign_key):
     logging.info('Importing private key')
     logging.info(sign_key)
 
-
-    logging.info(cleaned_sign_key)
-
     gpg = gnupg.GPG(options=['--yes', '--always-trust'])
     private_import_result = gpg.import_keys(sign_key)
 
