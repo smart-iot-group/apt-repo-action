@@ -43,7 +43,7 @@ def importPrivateKey(sign_key):
         error_details = private_import_result.stderr.strip()
         logging.error('GPG error details: ' + error_details)
 
-        preview_length = 30  # Number of characters to preview
+        preview_length = 50  # Number of characters to preview
         key_preview = sign_key[:preview_length] + '...' if sign_key else 'None'
         logging.error(f'Private key preview (first {preview_length} chars): {key_preview}')
 
