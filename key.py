@@ -37,7 +37,7 @@ def importPrivateKey(sign_key):
 
     if not private_import_result.fingerprints or len(private_import_result.fingerprints) != 1:
         logging.error('Invalid private key provided, please provide 1 valid key')
-        logging.error('GPG error: ' + public_import_result.stderr)
+        logging.error('GPG error: ' + private_import_result.stderr)
 
         sys.exit(1)
 
