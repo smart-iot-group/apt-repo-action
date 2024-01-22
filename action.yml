@@ -35,9 +35,15 @@ inputs:
   debug:
     description: "Print debug log"
     required: false
+  use_ssh_agent:
+    description: "Enable SSH agent forwarding for SCP authentication"
+    required: false
+    default: "true"
 runs:
   using: "docker"
   image: "Dockerfile"
+  env:
+    SSH_AUTH_SOCK: ${{ github.action_path }}/ssh-agent.sock
 branding:
   icon: "package"
   color: "green"
