@@ -18,9 +18,10 @@ def scp_transfer(hostname, port, username, local_file_path, remote_file_path):
 
     logging.info(f"SSH_AUTH_SOCK: {ssh_auth_sock}")
 
-
     if not os.path.exists(ssh_auth_sock):
         raise ValueError(f"SSH agent socket {ssh_auth_sock} does not exist")
+    else:
+        logging.info("SSH agent socket exists")
 
     agent = paramiko.Agent()
     agent_keys = agent.get_keys()
@@ -28,6 +29,10 @@ def scp_transfer(hostname, port, username, local_file_path, remote_file_path):
 
     if not agent_keys:
         raise ValueError("No keys available in SSH agent")
+
+    for key in agent_keys:
+        logging.info(f"Key type: {key.get_name()}, Key blob: {key.get_fingerprint()}")
+
 
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -39,7 +44,8 @@ def scp_transfer(hostname, port, username, local_file_path, remote_file_path):
     finally:
         client.close()
 
-        
+debug = os.environ.get('INPUT_DEBUG', False)
+
 if debug:
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 else:
