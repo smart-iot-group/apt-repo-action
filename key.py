@@ -43,11 +43,6 @@ def importPrivateKey(gpg, sign_key):
         logging.error('Invalid private key provided, please provide 1 valid key')
         sys.exit(1)
 
-    # Check if the imported key is a secret key
-    if not any(data['ok'] >= '16' for data in private_import_result.results):
-        logging.error('Key provided is not a secret key')
-        sys.exit(1)
-
     private_key_id = private_import_result.fingerprints[0]
     logging.info('Private key valid')
     logging.debug('Key id: {}'.format(private_key_id))
