@@ -1,7 +1,7 @@
 import logging
 import os
 import sys
-
+import gnupg
 
 def detectPublicKey(gpg, key_dir):
     logging.info('Detecting public key')
