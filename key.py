@@ -21,6 +21,8 @@ def detectPublicKey(gpg, key_dir):
         pub_key = key_file.read()
 
     logging.debug('Trying to import key')
+    
+    gpg = gnupg.GPG(use_agent=True, options=['--batch', '--pinentry-mode', 'loopback'])
 
     public_import_result = gpg.import_keys(pub_key)
     logging.debug(public_import_result)
@@ -35,6 +37,8 @@ def detectPublicKey(gpg, key_dir):
 
 def importPrivateKey(gpg, sign_key):
     logging.info('Importing private key')
+
+    gpg = gnupg.GPG(use_agent=True, options=['--batch', '--pinentry-mode', 'loopback'])
 
     private_import_result = gpg.import_keys(sign_key)
 
