@@ -40,10 +40,30 @@ inputs:
     required: false
     default: "true"
 runs:
-  using: "docker"
-  image: "Dockerfile"
-  env:
-    SSH_AUTH_SOCK: ${{ github.action_path }}/ssh-agent.sock
+  using: 'composite'
+  steps:
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r ${{ github.action_path }}/requirements.txt
+      shell: bash
+    - name: Run the APT Repo Management script
+      run: python ${{ github.action_path }}/entrypoint.py
+      shell: bash
+      env:
+        INPUT_REPO_SUPPORTED_ARCH: ${{ inputs.repo_supported_arch }}
+        INPUT_REPO_SUPPORTED_VERSION: ${{ inputs.repo_supported_version }}
+        INPUT_FILE: ${{ inputs.file }}
+        INPUT_PUBLIC_KEY: ${{ inputs.public_key }}
+        INPUT_PRIVATE_KEY: ${{ inputs.private_key }}
+        INPUT_KEY_PASSPHRASE: ${{ inputs.key_passphrase }}
+        INPUT_SCP_HOSTNAME: ${{ inputs.scp_hostname }}
+        INPUT_SCP_PORT: ${{ inputs.scp_port }}
+        INPUT_APT_REPO_PRIVATE: ${{ inputs.apt_repo_private }}
+        INPUT_REMOTE_FILE_PATH: ${{ inputs.remote_file_path }}
+        INPUT_DEBUG: ${{ inputs.debug }}
+        INPUT_USE_SSH_AGENT: ${{ inputs.use_ssh_agent }}
+        SSH_AUTH_SOCK: ${{ github.action_path }}/ssh-agent.sock
 branding:
   icon: "package"
   color: "green"
