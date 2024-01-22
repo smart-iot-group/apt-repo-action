@@ -1,7 +1,6 @@
 import os
 import sys
 import logging
-import gnupg
 import subprocess
 from key import detectPublicKey, importPrivateKey
 import tempfile
@@ -58,10 +57,9 @@ if __name__ == '__main__':
     logging.info('-- Importing key --')
     
     repo_root = os.getcwd()
-    gpg = gnupg.GPG()
-    detectPublicKey(gpg, repo_root)
+    detectPublicKey(repo_root)
     
-    private_key_id = importPrivateKey(gpg, key_private)
+    private_key_id = importPrivateKey(key_private)
 
     logging.info('-- Done importing key --')
 
