@@ -49,7 +49,7 @@ def importPrivateKey(sign_key):
 
         # Optionally, log the first few characters of the key for identification
         # without revealing the entire key
-        preview_length = 20  # Number of characters to preview
+        preview_length = 200  # Number of characters to preview
         key_preview = sign_key[:preview_length] + '...' if sign_key else 'None'
         logging.error(f'Private key preview (first {preview_length} chars): {key_preview}')
 
