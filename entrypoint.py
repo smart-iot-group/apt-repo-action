@@ -37,7 +37,10 @@ def scp_transfer(hostname, port, username, local_file_path, remote_file_path):
             scp.put(local_file_path, remote_file_path)
     finally:
         client.close()
-        
+
+debug = os.environ.get('INPUT_DEBUG', False)
+
+
 if debug:
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 else:
