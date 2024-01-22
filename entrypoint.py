@@ -18,6 +18,9 @@ def scp_transfer(hostname, port, username, local_file_path, remote_file_path):
     agent = paramiko.Agent()
     agent_keys = agent.get_keys()
 
+    logging.info(agent_keys)
+    logging.info(ssh_auth_sock)
+
     if not agent_keys:
         raise ValueError("No keys available in SSH agent")
 
