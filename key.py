@@ -21,12 +21,14 @@ def detectPublicKey(gpg, key_dir):
         pub_key = key_file.read()
 
     logging.debug('Trying to import key')
+
     public_import_result = gpg.import_keys(pub_key)
     logging.debug(public_import_result)
 
-    if public_import_result.count != 1:
+    if len(public_import_result.fingerprints) != 1:
         logging.error('Invalid public key provided, please provide 1 valid key')
         sys.exit(1)
+
 
     logging.info('Public key valid')
 
@@ -36,20 +38,18 @@ def importPrivateKey(gpg, sign_key):
 
     private_import_result = gpg.import_keys(sign_key)
 
-    if private_import_result.count != 1:
+    # Check if exactly one private key was imported
+    if len(private_import_result.fingerprints) != 1:
         logging.error('Invalid private key provided, please provide 1 valid key')
         sys.exit(1)
 
-    logging.debug(private_import_result)
-
+    # Check if the imported key is a secret key
     if not any(data['ok'] >= '16' for data in private_import_result.results):
         logging.error('Key provided is not a secret key')
         sys.exit(1)
 
-    private_key_id = private_import_result.results[0]['fingerprint']
-
+    private_key_id = private_import_result.fingerprints[0]
     logging.info('Private key valid')
-
     logging.debug('Key id: {}'.format(private_key_id))
 
     logging.info('-- Done importing key --')
