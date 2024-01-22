@@ -32,12 +32,26 @@ def importPrivateKey(sign_key):
     logging.info('Importing private key')
     logging.info(sign_key)
 
-    gpg = gnupg.GPG(options=['--yes', '--always-trust'])
-    private_import_result = gpg.import_keys(sign_key)
+    cleaned_sign_key = sign_key.replace('\n', '').strip()
 
+    logging.info(cleaned_sign_key)
+
+    gpg = gnupg.GPG(options=['--yes', '--always-trust'])
+    private_import_result = gpg.import_keys(cleaned_sign_key)
+
+    # Check if the import was successful
     if not private_import_result.fingerprints or len(private_import_result.fingerprints) != 1:
         logging.error('Invalid private key provided, please provide 1 valid key')
-        logging.error('GPG error: ' + private_import_result.stderr)
+
+        # Log the error details from GPG without revealing the key
+        error_details = private_import_result.stderr.strip()
+        logging.error('GPG error details: ' + error_details)
+
+        # Optionally, log the first few characters of the key for identification
+        # without revealing the entire key
+        preview_length = 20  # Number of characters to preview
+        key_preview = sign_key[:preview_length] + '...' if sign_key else 'None'
+        logging.error(f'Private key preview (first {preview_length} chars): {key_preview}')
 
         sys.exit(1)
 
