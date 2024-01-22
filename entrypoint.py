@@ -88,6 +88,6 @@ if __name__ == '__main__':
     scp_username = os.environ.get('INPUT_SCP_USERNAME', None)
     remote_file_path = os.environ.get('INPUT_REMOTE_FILE_PATH')
 
-    transfer_file_over_scp(deb_file_path, remote_file_path, scp_hostname, scp_port, scp_username)
+    scp_transfer(scp_hostname, scp_port, scp_username, deb_file_path, remote_file_path, )
 
     logging.info('-- Done transferring files --')
