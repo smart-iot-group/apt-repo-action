@@ -11,31 +11,24 @@ from paramiko import Agent
 from scp import SCPClient
 import io
 
+def scp_transfer(hostname, port, username, local_file_path, remote_file_path):
+    ssh_auth_sock = os.getenv('SSH_AUTH_SOCK', None)
+    if ssh_auth_sock is None:
+        raise ValueError("SSH_AUTH_SOCK environment variable is not set")
 
-def transfer_file_over_scp(local_file_path, remote_file_path, hostname, port, scp_username=None):
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
     try:
-        logging.info(f'SSH_AUTH_SOCK: {os.environ.get("SSH_AUTH_SOCK")}')
-        
-        # Create SSH client
-        client = SSHClient()
-        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        # Connect using the SSH agent
+        client.connect(hostname, port=int(port), username=username, sock=paramiko.AgentRequestHandler(ssh_auth_sock))
 
-        # Check if keys are available from the ssh-agent
-        agent = Agent()
-        if len(agent.get_keys()) == 0:
-            logging.error('No keys available in ssh-agent')
-            sys.exit(1)
-
-        client.connect(hostname, port=port, username=scp_username)
-
-        # Use SCPClient to transfer file
+        # SCP transfer
         with SCPClient(client.get_transport()) as scp:
             scp.put(local_file_path, remote_file_path)
 
+    finally:
         client.close()
-    except Exception as e:
-        logging.error(f'Error during SCP transfer: {e}')
-        sys.exit(1)
 
 debug = os.environ.get('INPUT_DEBUG', False)
 
