@@ -10,20 +10,12 @@ from paramiko import SSHClient
 from scp import SCPClient
 import io
 
-def transfer_file_over_scp(local_file_path, remote_file_path, hostname, port, private_key_str, scp_username=None):
-    if not private_key_str:
-        logging.error('Private key string is empty or not provided')
-        sys.exit(1)
-
+def transfer_file_over_scp(local_file_path, remote_file_path, hostname, port, scp_username=None):
     try:
-        # Create an in-memory file-like object from the private key string
-        private_key_file = io.StringIO(private_key_str)
-        pkey = paramiko.RSAKey.from_private_key(private_key_file)
-
         # Create SSH client
         client = SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect(hostname, port=port, username=scp_username, pkey=pkey)
+        client.connect(hostname, port=port, username=scp_username)
 
         # Use SCPClient to transfer file
         with SCPClient(client.get_transport()) as scp:
@@ -33,11 +25,6 @@ def transfer_file_over_scp(local_file_path, remote_file_path, hostname, port, pr
     except Exception as e:
         logging.error(f'Error during SCP transfer: {e}')
         sys.exit(1)
-    finally:
-        if 'private_key_file' in locals():
-            private_key_file.close()
-
-
 
 debug = os.environ.get('INPUT_DEBUG', False)
 
@@ -95,9 +82,8 @@ if __name__ == '__main__':
     scp_hostname = os.environ.get('INPUT_SCP_HOSTNAME')
     scp_port = int(os.environ.get('INPUT_SCP_PORT', 22))
     scp_username = os.environ.get('INPUT_SCP_USERNAME', None)
-    apt_repo_private_key_str = os.environ.get('INPUT_APT_REPO_PRIVATE')
     remote_file_path = os.environ.get('INPUT_REMOTE_FILE_PATH')
 
-    transfer_file_over_scp(deb_file_path, remote_file_path, scp_hostname, scp_port, apt_repo_private_key_str, scp_username)
+    transfer_file_over_scp(deb_file_path, remote_file_path, scp_hostname, scp_port, scp_username)
 
     logging.info('-- Done transferring files --')
