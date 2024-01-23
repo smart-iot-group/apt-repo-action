@@ -15,8 +15,6 @@ def scp_transfer(hostname, username, password, port, local_file_path, remote_fil
     if ssh_auth_sock is None:
         raise ValueError("SSH_AUTH_SOCK environment variable is not set")
 
-    logging.info(f"SSH_AUTH_SOCK: {ssh_auth_sock}")
-
     if not os.path.exists(ssh_auth_sock):
         raise ValueError(f"SSH agent socket {ssh_auth_sock} does not exist")
     else:
@@ -24,14 +22,9 @@ def scp_transfer(hostname, username, password, port, local_file_path, remote_fil
 
     agent = paramiko.Agent()
     agent_keys = agent.get_keys()
-    logging.info(f"Agent keys: {agent_keys}")
 
     if not agent_keys:
         raise ValueError("No keys available in SSH agent")
-
-    for key in agent_keys:
-        logging.info(f"Key type: {key.get_name()}, Key blob: {key.get_fingerprint()}")
-
 
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
