@@ -7,7 +7,6 @@ def detectPublicKey(key_dir):
     logging.info('Detecting public key')
 
     public_key_path = os.path.join(key_dir, 'public.key')
-    logging.debug(f'Looking for public key at {public_key_path}')
 
     if not os.path.isfile(public_key_path):
         logging.error(f'Public key file not found at {public_key_path}')
@@ -15,8 +14,6 @@ def detectPublicKey(key_dir):
 
     with open(public_key_path, 'r') as key_file:
         pub_key = key_file.read()
-
-    logging.debug('Trying to import key')
     
     gpg = gnupg.GPG(options=['--yes', '--always-trust'])
     public_import_result = gpg.import_keys(pub_key)
@@ -25,14 +22,12 @@ def detectPublicKey(key_dir):
 
 def importPrivateKey(sign_key):
     logging.info('Importing private key')
-    logging.info(sign_key)
 
     gpg = gnupg.GPG(options=['--yes', '--always-trust'])
     private_import_result = gpg.import_keys(sign_key)
 
     private_key_id = private_import_result.fingerprints[0]
     logging.info('Private key valid')
-    logging.debug(f'Key id: {private_key_id}')
 
     logging.info('-- Done importing key --')
 
