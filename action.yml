@@ -42,6 +42,9 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ inputs.apt_repo_private }}
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
@@ -59,11 +62,10 @@ runs:
         INPUT_KEY_PASSPHRASE: ${{ inputs.key_passphrase }}
         INPUT_SCP_HOSTNAME: ${{ inputs.scp_hostname }}
         INPUT_SCP_PORT: ${{ inputs.scp_port }}
-        INPUT_APT_REPO_PRIVATE: ${{ inputs.apt_repo_private }}
         INPUT_REMOTE_FILE_PATH: ${{ inputs.remote_file_path }}
         INPUT_DEBUG: ${{ inputs.debug }}
         INPUT_USE_SSH_AGENT: ${{ inputs.use_ssh_agent }}
-        SSH_AUTH_SOCK: ${{ github.action_path }}/ssh-agent.sock
+        SSH_AUTH_SOCK: ${{ env.SSH_AUTH_SOCK }}
 branding:
   icon: "package"
   color: "green"
