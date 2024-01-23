@@ -10,8 +10,7 @@ from paramiko import Agent
 from scp import SCPClient
 import io
 
-
-def scp_transfer(hostname, port, local_file_path, remote_file_path):
+def scp_transfer(hostname, username, password, port, local_file_path, remote_file_path):
     ssh_auth_sock = os.getenv('SSH_AUTH_SOCK', None)
     if ssh_auth_sock is None:
         raise ValueError("SSH_AUTH_SOCK environment variable is not set")
@@ -38,7 +37,7 @@ def scp_transfer(hostname, port, local_file_path, remote_file_path):
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     try:
-        client.connect(hostname, port=int(port), pkey=agent_keys[0])
+        client.connect(hostname, username=username, password=password, port=int(port), pkey=agent_keys[0])
         with SCPClient(client.get_transport()) as scp:
             scp.put(local_file_path, remote_file_path)
     finally:
@@ -98,8 +97,10 @@ if __name__ == '__main__':
 
     scp_hostname = os.environ.get('INPUT_SCP_HOSTNAME')
     scp_port = int(os.environ.get('INPUT_SCP_PORT', 22))
+    scp_username = os.environ.get('INPUT_SCP_USERNAME')
+    scp_password = os.environ.get('INPUT_SCP_PASSWORD')
     remote_file_path = os.environ.get('INPUT_REMOTE_FILE_PATH')
 
-    scp_transfer(scp_hostname, scp_port, deb_file_path, remote_file_path )
+    scp_transfer(scp_hostname, scp_username, scp_password, scp_port, deb_file_path, remote_file_path )
 
     logging.info('-- Done transferring files --')
