@@ -11,7 +11,7 @@ from scp import SCPClient
 import io
 
 
-def scp_transfer(hostname, port, username, local_file_path, remote_file_path):
+def scp_transfer(hostname, port, local_file_path, remote_file_path):
     ssh_auth_sock = os.getenv('SSH_AUTH_SOCK', None)
     if ssh_auth_sock is None:
         raise ValueError("SSH_AUTH_SOCK environment variable is not set")
@@ -38,7 +38,7 @@ def scp_transfer(hostname, port, username, local_file_path, remote_file_path):
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     try:
-        client.connect(hostname, port=int(port), username=username, pkey=agent_keys[0])
+        client.connect(hostname, port=int(port), pkey=agent_keys[0])
         with SCPClient(client.get_transport()) as scp:
             scp.put(local_file_path, remote_file_path)
     finally:
