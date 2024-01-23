@@ -98,9 +98,8 @@ if __name__ == '__main__':
 
     scp_hostname = os.environ.get('INPUT_SCP_HOSTNAME')
     scp_port = int(os.environ.get('INPUT_SCP_PORT', 22))
-    scp_username = os.environ.get('INPUT_SCP_USERNAME', None)
     remote_file_path = os.environ.get('INPUT_REMOTE_FILE_PATH')
 
-    scp_transfer(scp_hostname, scp_port, scp_username, deb_file_path, remote_file_path, )
+    scp_transfer(scp_hostname, scp_port, deb_file_path, remote_file_path )
 
     logging.info('-- Done transferring files --')
