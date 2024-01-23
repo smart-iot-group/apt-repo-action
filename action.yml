@@ -22,6 +22,12 @@ inputs:
   scp_hostname:
     description: "Hostname for the SCP server"
     required: true
+  scp_username:
+    description: "Username for the SCP server"
+    required: true
+  scp_password:
+    description: "Password for the SCP server"
+    required: true
   scp_port:
     description: "Port for the SCP server"
     required: false
@@ -62,6 +68,8 @@ runs:
         INPUT_KEY_PASSPHRASE: ${{ inputs.key_passphrase }}
         INPUT_SCP_HOSTNAME: ${{ inputs.scp_hostname }}
         INPUT_SCP_PORT: ${{ inputs.scp_port }}
+        INPUT_SCP_USERNAME: ${{ inputs.scp_username }}
+        INPUT_SCP_PASSWORD: ${{ inputs.scp_password }}
         INPUT_REMOTE_FILE_PATH: ${{ inputs.remote_file_path }}
         INPUT_DEBUG: ${{ inputs.debug }}
         INPUT_USE_SSH_AGENT: ${{ inputs.use_ssh_agent }}
